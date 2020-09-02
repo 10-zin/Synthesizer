@@ -23,3 +23,25 @@ class ScaledDotProductAttention(nn.Module):
         output = torch.matmul(attn, v)
 
         return output, attn
+
+# template for attention synthesizers
+# class Dense(nn.Module):
+#     def __init__(self, ):
+#         super().__init__()
+
+#     def forward():
+#         return output, attn
+
+# class Random():
+#     def __init__(self, ):
+#         super.__init__()
+
+#     def forward():
+#         return output, attn
+
+# class CNN():
+#     def __init__(self, ):
+#         super.__init__()
+
+#     def forward():
+#         return output, attn

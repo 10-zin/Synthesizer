@@ -69,6 +69,7 @@ class Encoder(nn.Module):
         # -- Forward
         
         enc_output = self.dropout(self.position_enc(self.src_word_emb(src_seq)))
+        print("embedding\n", enc_output.shape)
         enc_output = self.layer_norm(enc_output)
 
         for enc_layer in self.layer_stack:
@@ -162,9 +163,14 @@ class Transformer(nn.Module):
 
 
     def forward(self, src_seq, trg_seq):
+        # print(type(src_seq), type(trg_seq), "\n")
+        # print(src_seq, "\n", trg_seq, "\n")
+        # print(self.src_pad_idx, "\n", self.trg_pad_idx, "\n")
 
         src_mask = get_pad_mask(src_seq, self.src_pad_idx)
         trg_mask = get_pad_mask(trg_seq, self.trg_pad_idx) & get_subsequent_mask(trg_seq)
+
+        # print(src_mask, "\n", trg_mask, "\n")
 
         enc_output, *_ = self.encoder(src_seq, src_mask)
         dec_output, *_ = self.decoder(trg_seq, trg_mask, enc_output, src_mask)
