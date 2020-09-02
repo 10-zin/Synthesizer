@@ -2,7 +2,7 @@
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-from transformer.Modules import ScaledDotProductAttention
+from transformer.Modules import attention_processors, ScaledDotProductAttention
 
 __author__ = "Yu-Hsiang Huang"
 
@@ -16,12 +16,19 @@ class MultiHeadAttention(nn.Module):
         self.d_k = d_k
         self.d_v = d_v
 
+        # self.attn_type = attention_type
+
         self.w_qs = nn.Linear(d_model, n_head * d_k, bias=False)
         self.w_ks = nn.Linear(d_model, n_head * d_k, bias=False)
         self.w_vs = nn.Linear(d_model, n_head * d_v, bias=False)
         self.fc = nn.Linear(n_head * d_v, d_model, bias=False)
 
         self.attention = ScaledDotProductAttention(temperature=d_k ** 0.5)
+
+        # dynamic attention according to the attention type parameter
+        # passed in constructor
+        
+        # self.attention = attention_processors[attention_type](..) 
 
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
@@ -39,6 +46,17 @@ class MultiHeadAttention(nn.Module):
         q = self.w_qs(q).view(sz_b, len_q, n_head, d_k)
         k = self.w_ks(k).view(sz_b, len_k, n_head, d_k)
         v = self.w_vs(v).view(sz_b, len_v, n_head, d_v)
+
+        # Attention type specific input pre-processing 
+        
+        # if self.atten_type == "Vanilla":
+
+        # elif self.atten_type == "Dense":
+
+        # elif self.atten_type == "Random":
+
+        # elif self.atten_type == "CNN":
+
 
         # Transpose for attention dot product: b x n x lq x dv
         q, k, v = q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2)

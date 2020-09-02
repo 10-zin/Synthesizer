@@ -45,3 +45,10 @@ class ScaledDotProductAttention(nn.Module):
 
 #     def forward():
 #         return output, attn
+
+attention_processors = {
+    "Vanilla" : ScaledDotProductAttention,
+    "Dense" : Dense,
+    "Random" : Random,
+    "CNN" : CNN
+}
