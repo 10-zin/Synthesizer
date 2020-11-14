@@ -210,6 +210,7 @@ def main():
 
     parser.add_argument('-n_head', type=int, default=8)
     parser.add_argument('-n_layers', type=int, default=6)
+    parser.add_argument('-attn_type', type=str, choices=['vanilla', 'dense', 'random'], default='vanilla')
     parser.add_argument('-warmup','--n_warmup_steps', type=int, default=4000)
 
     parser.add_argument('-dropout', type=float, default=0.1)
@@ -248,13 +249,15 @@ def main():
     else:
         raise
 
-    print(opt)
+    # print(opt.max_token_seq_len)
 
     transformer = Transformer(
         opt.src_vocab_size,
         opt.trg_vocab_size,
         src_pad_idx=opt.src_pad_idx,
         trg_pad_idx=opt.trg_pad_idx,
+        max_seq_len=opt.max_token_seq_len,
+        batch_size=opt.batch_size,
         trg_emb_prj_weight_sharing=opt.proj_share_weight,
         emb_src_trg_weight_sharing=opt.embs_share_weight,
         d_k=opt.d_k,
@@ -262,6 +265,7 @@ def main():
         d_model=opt.d_model,
         d_word_vec=opt.d_word_vec,
         d_inner=opt.d_inner_hid,
+        attn_type=opt.attn_type,
         n_layers=opt.n_layers,
         n_head=opt.n_head,
         dropout=opt.dropout).to(device)

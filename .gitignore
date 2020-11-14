@@ -1,1 +1,7 @@
 synth-env
+*.pyc
+*.pkl
+*.log
+*.chkpt
+*.data/
+synth/temp.py

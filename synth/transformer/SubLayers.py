@@ -2,39 +2,55 @@
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-from transformer.Modules import attention_processors, ScaledDotProductAttention
+from transformer.Modules import ScaledDotProductAttention, DenseAttention, RandomAttention
 
 __author__ = "Yu-Hsiang Huang"
 
 class MultiHeadAttention(nn.Module):
     ''' Multi-Head Attention module '''
 
-    def __init__(self, n_head, d_model, d_k, d_v, dropout=0.1):
+    def __init__(self, max_seq_len, batch_size, n_head, d_model, d_k, d_v, attn_type, dropout=0.1):
         super().__init__()
 
         self.n_head = n_head
+        self.batch_size = batch_size
+        self.max_seq_len = max_seq_len
+        
         self.d_k = d_k
         self.d_v = d_v
-
-        # self.attn_type = attention_type
-
+        self.d_model = d_model
+        
         self.w_qs = nn.Linear(d_model, n_head * d_k, bias=False)
-        self.w_ks = nn.Linear(d_model, n_head * d_k, bias=False)
         self.w_vs = nn.Linear(d_model, n_head * d_v, bias=False)
+        self.attn_type = attn_type.lower()
+        self._init_attn()
+        
         self.fc = nn.Linear(n_head * d_v, d_model, bias=False)
 
-        self.attention = ScaledDotProductAttention(temperature=d_k ** 0.5)
+        # self.attention = ScaledDotProductAttention(temperature=d_k ** 0.5)
 
         # dynamic attention according to the attention type parameter
         # passed in constructor
         
-        # self.attention = attention_processors[attention_type](..) 
+        # self.attention = attention_processors[attn_type](temperature=d_k ** 0.5)
+                
 
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
 
+    def _init_attn(self, ):
+        print(self.attn_type)
+        if self.attn_type == "vanilla":
+            print('insiideee')
+            self.w_ks = nn.Linear(self.d_model, self.n_head * self.d_k, bias=False)
+            self.attention = ScaledDotProductAttention(temperature=self.d_k ** 0.5)
+        elif self.attn_type == "dense":
+            self.attention = DenseAttention(self.max_seq_len, self.d_k,)
+        elif self.attn_type == "random":
+            self.attention = RandomAttention(self.batch_size, self.n_head, self.max_seq_len,)
 
-    def forward(self, q, k, v, mask=None):
+
+    def forward(self, q, k, v, mask=None, factorize=False):
 
         d_k, d_v, n_head = self.d_k, self.d_v, self.n_head
         sz_b, len_q, len_k, len_v = q.size(0), q.size(1), k.size(1), v.size(1)
@@ -44,31 +60,42 @@ class MultiHeadAttention(nn.Module):
         # Pass through the pre-attention projection: b x lq x (n*dv)
         # Separate different heads: b x lq x n x dv
         q = self.w_qs(q).view(sz_b, len_q, n_head, d_k)
-        k = self.w_ks(k).view(sz_b, len_k, n_head, d_k)
         v = self.w_vs(v).view(sz_b, len_v, n_head, d_v)
+
+        # Transpose for attention dot product: b x n x lq x dv
+        q, v = q.transpose(1, 2), v.transpose(1, 2)
+
+        # For head axis broadcasting.
+        if mask is not None:
+            mask = mask.unsqueeze(1) 
 
         # Attention type specific input pre-processing 
         
-        # if self.atten_type == "Vanilla":
+        if self.attn_type == "vanilla":
+            k = self.w_ks(k).view(sz_b, len_k, n_head, d_k)
+            k = k.transpose(1, 2)
+            q, attn = self.attention(q, k, v, mask=mask)
 
-        # elif self.atten_type == "Dense":
+        elif self.attn_type == "dense":
+            q, attn = self.attention(q, v, len_q, mask=mask)
+        elif self.attn_type == "random":
+            q, attn = self.attention(v, len_q, mask=mask)
 
         # elif self.atten_type == "Random":
 
         # elif self.atten_type == "CNN":
 
 
-        # Transpose for attention dot product: b x n x lq x dv
-        q, k, v = q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2)
-
-        if mask is not None:
-            mask = mask.unsqueeze(1)   # For head axis broadcasting.
-
-        q, attn = self.attention(q, k, v, mask=mask)
-
         # Transpose to move the head dimension back: b x lq x n x dv
         # Combine the last two dimensions to concatenate all the heads together: b x lq x (n*dv)
+
         q = q.transpose(1, 2).contiguous().view(sz_b, len_q, -1)
+        # print('q: ', q.shape)
+        # q = q.contiguous()
+        # print('q_2: ', q.shape)
+        # print('okkk: ', sz_b, len_q)
+        # q = q.view(sz_b, len_q, -1)
+        
         q = self.dropout(self.fc(q))
         q += residual
 
@@ -98,3 +125,5 @@ class PositionwiseFeedForward(nn.Module):
         x = self.layer_norm(x)
 
         return x
+
+# attn_type = {'Vanilla': with_vanilla}

@@ -6,13 +6,17 @@ from transformer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
 
 __author__ = "Yu-Hsiang Huang"
 
+# def get_self_attention(self, attn_type):
+#     if attn_type = 'Vanilla':
+#         self.slf_attn = self.slf_attn.with_vanilla()
 
 class EncoderLayer(nn.Module):
     ''' Compose with two layers '''
 
-    def __init__(self, d_model, d_inner, n_head, d_k, d_v, dropout=0.1):
+    def __init__(self, max_seq_len, batch_size, d_model, d_inner, n_head, d_k, d_v, attn_type, dropout=0.1):
         super(EncoderLayer, self).__init__()
-        self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        self.slf_attn = MultiHeadAttention(max_seq_len, batch_size, n_head, d_model, d_k, d_v, attn_type, dropout=dropout)
+            
         self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
 
     def forward(self, enc_input, slf_attn_mask=None):
@@ -25,10 +29,10 @@ class EncoderLayer(nn.Module):
 class DecoderLayer(nn.Module):
     ''' Compose with three layers '''
 
-    def __init__(self, d_model, d_inner, n_head, d_k, d_v, dropout=0.1):
+    def __init__(self, max_seq_len, batch_size, d_model, d_inner, n_head, d_k, d_v, attn_type, dropout=0.1):
         super(DecoderLayer, self).__init__()
-        self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
-        self.enc_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        self.slf_attn = MultiHeadAttention(max_seq_len, batch_size, n_head, d_model, d_k, d_v, attn_type, dropout=dropout)
+        self.enc_attn = MultiHeadAttention(max_seq_len, batch_size, n_head, d_model, d_k, d_v, attn_type='vanilla', dropout=dropout)
         self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
 
     def forward(

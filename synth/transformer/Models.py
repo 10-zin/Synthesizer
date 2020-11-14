@@ -49,8 +49,8 @@ class Encoder(nn.Module):
     ''' A encoder model with self attention mechanism. '''
 
     def __init__(
-            self, n_src_vocab, d_word_vec, n_layers, n_head, d_k, d_v,
-            d_model, d_inner, pad_idx, dropout=0.1, n_position=200):
+            self, n_src_vocab,  max_seq_len, batch_size, d_word_vec, n_layers, n_head, d_k, d_v,
+            d_model, d_inner, attn_type, pad_idx, dropout=0.1, n_position=200):
 
         super().__init__()
 
@@ -58,7 +58,7 @@ class Encoder(nn.Module):
         self.position_enc = PositionalEncoding(d_word_vec, n_position=n_position)
         self.dropout = nn.Dropout(p=dropout)
         self.layer_stack = nn.ModuleList([
-            EncoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout)
+            EncoderLayer(max_seq_len, batch_size, d_model, d_inner, n_head, d_k, d_v, attn_type, dropout=dropout)
             for _ in range(n_layers)])
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
 
@@ -69,7 +69,7 @@ class Encoder(nn.Module):
         # -- Forward
         
         enc_output = self.dropout(self.position_enc(self.src_word_emb(src_seq)))
-        print("embedding\n", enc_output.shape)
+        # print("embedding\n", enc_output.shape)
         enc_output = self.layer_norm(enc_output)
 
         for enc_layer in self.layer_stack:
@@ -85,8 +85,8 @@ class Decoder(nn.Module):
     ''' A decoder model with self attention mechanism. '''
 
     def __init__(
-            self, n_trg_vocab, d_word_vec, n_layers, n_head, d_k, d_v,
-            d_model, d_inner, pad_idx, n_position=200, dropout=0.1):
+            self, n_trg_vocab, max_seq_len, batch_size, d_word_vec, n_layers, n_head, d_k, d_v,
+            d_model, d_inner, attn_type, pad_idx, n_position=200, dropout=0.1):
 
         super().__init__()
 
@@ -94,7 +94,7 @@ class Decoder(nn.Module):
         self.position_enc = PositionalEncoding(d_word_vec, n_position=n_position)
         self.dropout = nn.Dropout(p=dropout)
         self.layer_stack = nn.ModuleList([
-            DecoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout)
+            DecoderLayer(max_seq_len, batch_size, d_model, d_inner, n_head, d_k, d_v, attn_type, dropout=dropout)
             for _ in range(n_layers)])
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
 
@@ -121,26 +121,27 @@ class Transformer(nn.Module):
     ''' A sequence to sequence model with attention mechanism. '''
 
     def __init__(
-            self, n_src_vocab, n_trg_vocab, src_pad_idx, trg_pad_idx,
-            d_word_vec=512, d_model=512, d_inner=2048,
-            n_layers=6, n_head=8, d_k=64, d_v=64, dropout=0.1, n_position=200,
-            trg_emb_prj_weight_sharing=True, emb_src_trg_weight_sharing=True):
+            self, n_src_vocab, n_trg_vocab, src_pad_idx, trg_pad_idx, 
+            max_seq_len = 128, batch_size = 32, d_word_vec=512, d_model=512, d_inner=2048, 
+            attn_type = 'vanilla', n_layers=6, n_head=8, d_k=64, d_v=64,
+            dropout=0.1, n_position=200, trg_emb_prj_weight_sharing=True,
+            emb_src_trg_weight_sharing=True):
 
         super().__init__()
 
         self.src_pad_idx, self.trg_pad_idx = src_pad_idx, trg_pad_idx
 
         self.encoder = Encoder(
-            n_src_vocab=n_src_vocab, n_position=n_position,
-            d_word_vec=d_word_vec, d_model=d_model, d_inner=d_inner,
-            n_layers=n_layers, n_head=n_head, d_k=d_k, d_v=d_v,
-            pad_idx=src_pad_idx, dropout=dropout)
+            n_src_vocab=n_src_vocab, max_seq_len=max_seq_len, batch_size=batch_size,
+            n_position=n_position, d_word_vec=d_word_vec, d_model=d_model,
+            d_inner=d_inner, attn_type=attn_type, n_layers=n_layers, n_head=n_head,
+            d_k=d_k, d_v=d_v, pad_idx=src_pad_idx, dropout=dropout)
 
         self.decoder = Decoder(
-            n_trg_vocab=n_trg_vocab, n_position=n_position,
-            d_word_vec=d_word_vec, d_model=d_model, d_inner=d_inner,
-            n_layers=n_layers, n_head=n_head, d_k=d_k, d_v=d_v,
-            pad_idx=trg_pad_idx, dropout=dropout)
+            n_trg_vocab=n_trg_vocab, max_seq_len=max_seq_len, batch_size=batch_size,
+            n_position=n_position, d_word_vec=d_word_vec, d_model=d_model,
+            d_inner=d_inner, attn_type=attn_type, n_layers=n_layers, n_head=n_head,
+            d_k=d_k, d_v=d_v, pad_idx=trg_pad_idx, dropout=dropout)
 
         self.trg_word_prj = nn.Linear(d_model, n_trg_vocab, bias=False)
 
@@ -164,10 +165,12 @@ class Transformer(nn.Module):
 
     def forward(self, src_seq, trg_seq):
         # print(type(src_seq), type(trg_seq), "\n")
-        # print(src_seq, "\n", trg_seq, "\n")
+        # # print(src_seq, "\n", trg_seq, "\n")
         # print(self.src_pad_idx, "\n", self.trg_pad_idx, "\n")
+        # print('src_seq: ', src_seq.shape)
 
         src_mask = get_pad_mask(src_seq, self.src_pad_idx)
+        # print('src_mask: ', src_mask.shape)
         trg_mask = get_pad_mask(trg_seq, self.trg_pad_idx) & get_subsequent_mask(trg_seq)
 
         # print(src_mask, "\n", trg_mask, "\n")
