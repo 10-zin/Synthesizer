@@ -15,13 +15,9 @@ class ScaledDotProductAttention(nn.Module):
     def forward(self, q, k, v, mask=None):
 
         attn = torch.matmul(q / self.temperature, k.transpose(2, 3))
-        # print('before', attn.shape)
 
         if mask is not None:
             attn = attn.masked_fill(mask == 0, -1e9)
-        # print('mask', mask)
-        # print('Attn: ', attn.shape)
-        # print('V: ', v.shape)
         attn = self.dropout(F.softmax(attn, dim=-1))
         output = torch.matmul(attn, v)
 
@@ -92,16 +88,10 @@ class RandomAttention(nn.Module):
         random_attn = random_attn.to(torch.device('cuda' if mask.is_cuda else 'cpu'))
 
         if mask is not None:
-            # if random_attn.shape[0]!=mask.shape[0]:
-            #     print('r: ', random_attn.shape)
-            #     print('m: ', mask.shape)
             random_attn = random_attn.masked_fill(mask == 0, -1e9)
-        # print(random_attn.shape)
-        # print(v.shape)
 
         random_attn = self.dropout(F.softmax(random_attn, dim=-1))
         output = torch.matmul(random_attn, v)
-        # print('output: ', output.shape)
         
         return output, random_attn
 
@@ -123,17 +113,3 @@ class FactorizedRandomAttention(nn.Module):
         output = torch.matmul(random_attn, v)
         
         return output, random_attn
-
-# class CNN():
-#     def __init__(self, ):
-#         super.__init__()
-
-#     def forward():
-#         return output, attn
-
-# attention_processors = {
-#     "Vanilla" : ScaledDotProductAttention,
-#     "Dense" : Dense,
-#     # "Random" : Random,
-#     # "CNN" : CNN
-# }

@@ -6,10 +6,6 @@ from transformer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
 
 __author__ = "Yu-Hsiang Huang"
 
-# def get_self_attention(self, attn_type):
-#     if attn_type = 'Vanilla':
-#         self.slf_attn = self.slf_attn.with_vanilla()
-
 class EncoderLayer(nn.Module):
     ''' Compose with two layers '''
 

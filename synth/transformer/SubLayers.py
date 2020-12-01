@@ -26,22 +26,14 @@ class MultiHeadAttention(nn.Module):
         self._init_attn()
         
         self.fc = nn.Linear(n_head * d_v, d_model, bias=False)
-
-        # self.attention = ScaledDotProductAttention(temperature=d_k ** 0.5)
-
-        # dynamic attention according to the attention type parameter
-        # passed in constructor
-        
-        # self.attention = attention_processors[attn_type](temperature=d_k ** 0.5)
                 
 
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
 
     def _init_attn(self, ):
-        print(self.attn_type)
+        # print(self.attn_type)
         if self.attn_type == "vanilla":
-            print('insiideee')
             self.w_ks = nn.Linear(self.d_model, self.n_head * self.d_k, bias=False)
             self.attention = ScaledDotProductAttention(temperature=self.d_k ** 0.5)
         elif self.attn_type == "dense":
