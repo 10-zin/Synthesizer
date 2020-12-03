@@ -67,7 +67,7 @@ python translate.py -data_pkl m30k_deen_shr.pkl -model trained.chkpt -output pre
 <img src="https://github.com/10-zin/Synthesizer/blob/master/images/acc-1.png" width="400">
 </p>
 
-Results are viewed in this [notebok](https://github.com/10-zin/Synthesizer/blob/master/synth/Dense-Random-Vanilla-Comparison.ipynb), after training and storing the weights of 3 variants.
+Results are viewed in this [notebook](https://github.com/10-zin/Synthesizer/blob/master/synth/Dense-Random-Vanilla-Comparison.ipynb), after training and storing the weights of 3 variants.
 
 # Todo
 
