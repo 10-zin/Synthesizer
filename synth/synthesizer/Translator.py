@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from synthesizer.Models import get_pad_mask, get_subsequent_mask
 
+__author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 
 class Translator(nn.Module):
     ''' Load a trained model and translate in beam search fashion. '''

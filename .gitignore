@@ -6,3 +6,5 @@ synth-env
 *.data/
 synth/temp.py
 .ipynb_checkpoints
+*prediction.txt
+

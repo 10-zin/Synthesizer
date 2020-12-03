@@ -13,7 +13,7 @@ import tarfile
 import torchtext.data
 import torchtext.datasets
 from torchtext.datasets import TranslationDataset
-import transformer.Constants as Constants
+import synthesizer.Constants as Constants
 from learn_bpe import learn_bpe
 from apply_bpe import BPE
 

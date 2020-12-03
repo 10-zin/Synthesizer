@@ -5,34 +5,35 @@ import argparse
 import dill as pickle
 from tqdm import tqdm
 
-import transformer.Constants as Constants
+import synthesizer.Constants as Constants
 from torchtext.data import Dataset
-from transformer.Models import Transformer
-from transformer.Translator import Translator
+from synthesizer.Models import Synthesizer
+from synthesizer.Translator import Translator
 
+__author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 
 def load_model(opt, device):
 
     checkpoint = torch.load(opt.model, map_location=device)
-    model_opt = checkpoint['settings']
+    opt = checkpoint['settings']
 
-    model = Transformer(
-        model_opt.src_vocab_size,
-        model_opt.trg_vocab_size,
-
-        model_opt.src_pad_idx,
-        model_opt.trg_pad_idx,
-
-        trg_emb_prj_weight_sharing=model_opt.proj_share_weight,
-        emb_src_trg_weight_sharing=model_opt.embs_share_weight,
-        d_k=model_opt.d_k,
-        d_v=model_opt.d_v,
-        d_model=model_opt.d_model,
-        d_word_vec=model_opt.d_word_vec,
-        d_inner=model_opt.d_inner_hid,
-        n_layers=model_opt.n_layers,
-        n_head=model_opt.n_head,
-        dropout=model_opt.dropout).to(device)
+    model = Synthesizer(
+        opt.src_vocab_size,
+        opt.trg_vocab_size,
+        src_pad_idx=opt.src_pad_idx,
+        trg_pad_idx=opt.trg_pad_idx,
+        max_seq_len=opt.max_token_seq_len,
+        batch_size=opt.batch_size,
+        trg_emb_prj_weight_sharing=opt.proj_share_weight,
+        emb_src_trg_weight_sharing=opt.embs_share_weight,
+        d_k=opt.d_k,
+        d_v=opt.d_v,
+        d_model=opt.d_model,
+        d_word_vec=opt.d_word_vec,
+        d_inner=opt.d_inner_hid,
+        attn_type=opt.attn_type,
+        n_layers=opt.n_layers,
+        n_head=opt.n_head).to(device)
 
     model.load_state_dict(checkpoint['model'])
     print('[Info] Trained model state loaded.')
