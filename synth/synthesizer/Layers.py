@@ -1,10 +1,10 @@
 ''' Define the Layers '''
 import torch.nn as nn
 import torch
-from transformer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
+from synthesizer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
 
 
-__author__ = "Yu-Hsiang Huang"
+__author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 
 class EncoderLayer(nn.Module):
     ''' Compose with two layers '''

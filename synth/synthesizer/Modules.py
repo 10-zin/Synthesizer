@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-__author__ = "Yu-Hsiang Huang"
+__author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 
 class ScaledDotProductAttention(nn.Module):
     ''' Scaled Dot-Product Attention '''

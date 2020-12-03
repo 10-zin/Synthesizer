@@ -1,11 +1,11 @@
-''' Define the Transformer model '''
+''' Define the Synthesizer model '''
 import torch
 import torch.nn as nn
 import numpy as np
-from transformer.Layers import EncoderLayer, DecoderLayer
+from synthesizer.Layers import EncoderLayer, DecoderLayer
 
 
-__author__ = "Yu-Hsiang Huang"
+__author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 
 
 def get_pad_mask(seq, pad_idx):
@@ -117,7 +117,7 @@ class Decoder(nn.Module):
         return dec_output,
 
 
-class Transformer(nn.Module):
+class Synthesizer(nn.Module):
     ''' A sequence to sequence model with attention mechanism. '''
 
     def __init__(

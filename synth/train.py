@@ -14,11 +14,11 @@ import torch.optim as optim
 from torchtext.data import Field, Dataset, BucketIterator
 from torchtext.datasets import TranslationDataset
 
-import transformer.Constants as Constants
-from transformer.Models import Transformer
-from transformer.Optim import ScheduledOptim
+import synthesizer.Constants as Constants
+from synthesizer.Models import Synthesizer
+from synthesizer.Optim import ScheduledOptim
 
-__author__ = "Yu-Hsiang Huang"
+__author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 
 def cal_performance(pred, gold, trg_pad_idx, smoothing=False):
     ''' Apply label smoothing if needed '''
@@ -251,7 +251,7 @@ def main():
 
     # print(opt.max_token_seq_len)
 
-    transformer = Transformer(
+    synthesizer = Synthesizer(
         opt.src_vocab_size,
         opt.trg_vocab_size,
         src_pad_idx=opt.src_pad_idx,
@@ -271,10 +271,10 @@ def main():
         dropout=opt.dropout).to(device)
 
     optimizer = ScheduledOptim(
-        optim.Adam(transformer.parameters(), betas=(0.9, 0.98), eps=1e-09),
+        optim.Adam(synthesizer.parameters(), betas=(0.9, 0.98), eps=1e-09),
         2.0, opt.d_model, opt.n_warmup_steps)
 
-    train(transformer, training_data, validation_data, optimizer, device, opt)
+    train(synthesizer, training_data, validation_data, optimizer, device, opt)
 
 
 def prepare_dataloaders_from_bpe_files(opt, device):

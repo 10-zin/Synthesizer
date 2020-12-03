@@ -5,3 +5,4 @@ synth-env
 *.chkpt
 *.data/
 synth/temp.py
+.ipynb_checkpoints
