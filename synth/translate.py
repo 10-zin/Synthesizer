@@ -5,10 +5,10 @@ import argparse
 import dill as pickle
 from tqdm import tqdm
 
-import synthesizer.Constants as Constants
+import synthesizer.constants as Constants
 from torchtext.data import Dataset
-from synthesizer.Models import Synthesizer
-from synthesizer.Translator import Translator
+from synthesizer.models import Synthesizer
+from synthesizer.translator import Translator
 
 __author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 

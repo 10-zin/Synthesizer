@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from synthesizer.Models import get_pad_mask, get_subsequent_mask
+from synthesizer.models import get_pad_mask, get_subsequent_mask
 
 __author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 

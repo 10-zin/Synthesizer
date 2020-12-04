@@ -2,7 +2,7 @@
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-from synthesizer.Modules import ScaledDotProductAttention, DenseAttention, RandomAttention
+from synthesizer.modules import ScaledDotProductAttention, DenseAttention, RandomAttention
 
 __author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 

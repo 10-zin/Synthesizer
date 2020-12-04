@@ -14,9 +14,9 @@ import torch.optim as optim
 from torchtext.data import Field, Dataset, BucketIterator
 from torchtext.datasets import TranslationDataset
 
-import synthesizer.Constants as Constants
-from synthesizer.Models import Synthesizer
-from synthesizer.Optim import ScheduledOptim
+import synthesizer.constants as Constants
+from synthesizer.models import Synthesizer
+from synthesizer.optim import ScheduledOptim
 
 __author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
 

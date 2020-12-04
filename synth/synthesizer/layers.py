@@ -1,7 +1,7 @@
 ''' Define the Layers '''
 import torch.nn as nn
 import torch
-from synthesizer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
+from synthesizer.sub_layers import MultiHeadAttention, PositionwiseFeedForward
 
 
 __author__ = "Tenzin Singhay Bhotia, Yu-Hsiang Huang"
