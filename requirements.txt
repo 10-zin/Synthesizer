@@ -9,7 +9,7 @@ en-core-web-sm==2.3.1
 future==0.18.2
 idna==2.10
 murmurhash==1.0.2
-numpy==1.19.1
+numpy==1.22.0
 Pillow==8.1.1
 plac==1.1.3
 preshed==3.0.2
